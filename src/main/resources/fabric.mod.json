@@ -15,15 +15,11 @@
 	"icon": "assets/repeatcommand/icon.png",
 	"environment": "*",
 	"entrypoints": {
-		"main": [
-			"name.modid.RepeatCommand"
-		],
 		"client": [
 			"name.modid.client.RepeatCommandClient"
 		]
 	},
 	"mixins": [
-		"repeatcommand.mixins.json",
 		{
 			"config": "repeatcommand.client.mixins.json",
 			"environment": "client"
