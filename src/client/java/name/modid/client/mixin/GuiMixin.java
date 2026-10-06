@@ -1,34 +1,35 @@
 package name.modid.client.mixin;
 
 import name.modid.client.RepeatCommandClient;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(Minecraft.class)
-public class MinecraftMixin {
+@Mixin(Gui.class)
+public class GuiMixin {
 
     @ModifyVariable(method = "setScreen", at = @At("HEAD"), argsOnly = true)
     private Screen prefillChatBox(Screen screen) {
-
-        if (screen instanceof ChatScreen) {
-            // Cast ChatScreen to Accessor interface and get initial
-            ChatScreenAccessor accessor = (ChatScreenAccessor) screen;
-            String initialText = accessor.getInitial();
-
-            // If screen was opened with "/", not empty text, do nothing:
-            if (!initialText.equals("")) {
+        if (screen instanceof ChatScreen chatScreen) {
+            // Only intervene if prefix is actually configured
+            if (!RepeatCommandClient.hasPrefix()) {
                 return screen;
             }
 
-            // Substitute with a new ChatScreen containing prefix.
+            ChatScreenAccessor accessor = (ChatScreenAccessor) chatScreen;
+            String initialText = accessor.getInitial();
+
+            // If screen was opened with "/" (or already has text / draft restored), do nothing:
+            if (initialText != null && !initialText.isEmpty()) {
+                return screen;
+            }
+
+            // Replace with a new ChatScreen prefilled with the custom prefix
             String prefix = RepeatCommandClient.getFullPrefix();
-            
-            // If screen was opened with standard empty text:
-            return new ChatScreen(prefix);
+            return new ChatScreen(prefix, false);
         }
         return screen;
     }
