@@ -2,7 +2,7 @@
 
 ## Version
 
-Fabric Minecraft 1.20.1 for now...
+Fabric Minecraft 1.20.1 and 26.2 for now...
 
 ## Description
 
