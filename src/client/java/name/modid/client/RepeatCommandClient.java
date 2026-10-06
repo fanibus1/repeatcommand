@@ -4,7 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.ChatFormatting;
@@ -34,23 +34,23 @@ public class RepeatCommandClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         // Register /repc command hierarchy
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(
-                    ClientCommandManager.literal("repc")
+                    ClientCommands.literal("repc")
                             .executes(this::showHelp)
-                            .then(ClientCommandManager.literal("reset")
+                            .then(ClientCommands.literal("reset")
                                     .executes(this::resetPrefix))
-                            .then(ClientCommandManager.literal("-m")
-                                    .then(ClientCommandManager.argument("command", StringArgumentType.greedyString())
+                            .then(ClientCommands.literal("-m")
+                                    .then(ClientCommands.argument("command", StringArgumentType.greedyString())
                                             .executes(ctx -> setPrefix(ctx,
                                                     StringArgumentType.getString(ctx, "command"), true))))
-                            .then(ClientCommandManager.literal("-r")
-                                    .then(ClientCommandManager.argument("text", StringArgumentType.greedyString())
-                                            .executes(ctx -> setPrefix(ctx, StringArgumentType.getString(ctx, "text"),
-                                                    false))))
-                            .then(ClientCommandManager.argument("command", StringArgumentType.greedyString())
-                                    .executes(ctx -> setPrefix(ctx, StringArgumentType.getString(ctx, "command"),
-                                            true))));
+                            .then(ClientCommands.literal("-r")
+                                    .then(ClientCommands.argument("text", StringArgumentType.greedyString())
+                                            .executes(ctx -> setPrefix(ctx,
+                                                    StringArgumentType.getString(ctx, "text"), false))))
+                            .then(ClientCommands.argument("command", StringArgumentType.greedyString())
+                                    .executes(ctx -> setPrefix(ctx,
+                                            StringArgumentType.getString(ctx, "command"), true))));
         });
     }
 
@@ -62,8 +62,9 @@ public class RepeatCommandClient implements ClientModInitializer {
         context.getSource().sendFeedback(
                 Component.literal("[repc] ").withStyle(ChatFormatting.AQUA)
                         .append(Component.literal("Prefix set to: ").withStyle(ChatFormatting.GRAY))
-                        .append(Component.literal(formattedPreview).withStyle(ChatFormatting.BOLD,
-                                ChatFormatting.GREEN)));
+                        .append(Component.literal(formattedPreview)
+                                .withStyle(ChatFormatting.BOLD)
+                                .withStyle(ChatFormatting.GREEN)));
         return Command.SINGLE_SUCCESS;
     }
 
@@ -81,23 +82,26 @@ public class RepeatCommandClient implements ClientModInitializer {
         FabricClientCommandSource src = context.getSource();
 
         src.sendFeedback(
-                Component.literal("\n--- [repc Help & Status] ---").withStyle(ChatFormatting.BOLD,
-                        ChatFormatting.GOLD));
+                Component.literal("\n--- [repc Help & Status] ---")
+                        .withStyle(ChatFormatting.BOLD)
+                        .withStyle(ChatFormatting.GOLD));
 
         if (activePrefix == null) {
             src.sendFeedback(
-                    Component.literal("Current Prefix: ").withStyle(ChatFormatting.BOLD, ChatFormatting.GRAY)
-                            .append(Component.literal("None (normal chat)").withStyle(ChatFormatting.BOLD,
-                                    ChatFormatting.RED)));
+                    Component.literal("Current Prefix: ").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GRAY)
+                            .append(Component.literal("None (normal chat)").withStyle(ChatFormatting.BOLD)
+                                    .withStyle(ChatFormatting.RED)));
         } else {
             String preview = getLeadingSlash() + activePrefix + " <message>";
             src.sendFeedback(
-                    Component.literal("Current Prefix: ").withStyle(ChatFormatting.BOLD, ChatFormatting.GRAY)
-                            .append(Component.literal(preview).withStyle(ChatFormatting.BOLD, ChatFormatting.GREEN)));
+                    Component.literal("Current Prefix: ").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GRAY)
+                            .append(Component.literal(preview).withStyle(ChatFormatting.BOLD)
+                                    .withStyle(ChatFormatting.GREEN)));
         }
 
         src.sendFeedback(
-                Component.literal("Available Commands:").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW));
+                Component.literal("Available Commands:").withStyle(ChatFormatting.BOLD)
+                        .withStyle(ChatFormatting.YELLOW));
         src.sendFeedback(Component.literal("  /repc <command>").withStyle(ChatFormatting.AQUA)
                 .append(Component
                         .literal(" - Prepends /<command> to all following chat messages until changed or reset.")
