@@ -1,9 +1,9 @@
 {
 	"required": true,
 	"package": "name.modid.client.mixin",
-	"compatibilityLevel": "JAVA_17",
+	"compatibilityLevel": "JAVA_25",
 	"client": [
-		"MinecraftMixin",
+		"GuiMixin",
         "ChatScreenAccessor"
 	],
 	"injectors": {
